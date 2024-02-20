@@ -1,5 +1,7 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayDeque;
+import java.util.Queue;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
@@ -8,12 +10,10 @@ public class Main {
 	public static class Node{
 		int y;
 		int x;
-		int d;
 		
-		Node(int y, int x,int d){
+		Node(int y, int x){
 			this.y = y;
 			this.x = x;
-			this.d = d;
 		}
 	}
 
@@ -54,26 +54,23 @@ public class Main {
 					if(map[i][j]==1 && !bmap[i][j]) {
 						bmap[i][j] = true;
 						answer++;
-						Stack<Node> sta = new Stack<>();
-						sta.push(new Node(i,j,0));
+						Queue<Node> que = new ArrayDeque<>();
+						que.offer(new Node(i,j));
 						
-						while(!sta.isEmpty()) {
-							Node CheckNode = sta.peek();
-							
-							if(CheckNode.d == 8){
-								sta.pop();
-								continue;
+						while(!que.isEmpty()) {
+							Node CheckNode = que.peek();
+							que.poll();
+							for(int k=0;k<8;k++) {
+								int wy = CheckNode.y + dy[k];
+								int wx = CheckNode.x + dx[k];
+								
+								if(wy<0 || wx<0 || wy>=H || wx>=W
+										|| bmap[wy][wx] || map[wy][wx]!=1) {
+									continue;
+								}
+								bmap[wy][wx] = true;
+								que.offer(new Node(wy,wx));
 							}
-							int wy = CheckNode.y + dy[CheckNode.d];
-							int wx = CheckNode.x + dx[CheckNode.d];
-							
-							if(wy<0 || wx<0 || wy>=H || wx>=W
-									|| bmap[wy][wx] || map[wy][wx]!=1) {
-								sta.peek().d++;
-								continue;
-							}
-							bmap[wy][wx] = true;
-							sta.push(new Node(wy,wx,0));
 						}
 					}
 				}
