@@ -1,169 +1,118 @@
 import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	static int count;
-	// 방향 상하좌우
-	static int[] dy = { -1, 1, 0, 0 };
-	static int[] dx = { 0, 0, -1, 1 };
-	static boolean[][] v;
-	static boolean[][] c;
+    public static class Node{
+        int y;
+        int x;
 
-	static int N, R;
-	static int lastone;
+        public Node(int y, int x) {
+            this.y = y;
+            this.x = x;
+        }
+    }
 
-	public static void main(String[] args) throws IOException {
+    public static int R,C;
+    public static int[][] map;
 
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+    //상, 우, 하, 좌
+    public static int[] dy = {-1,0,1,0};
+    public static int[] dx = {0,1,0,-1};
+    public static Queue<Node> holeque = new ArrayDeque<>();
 
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		N = Integer.parseInt(st.nextToken());
-		R = Integer.parseInt(st.nextToken());
-		int[][] arr = new int[N][R];
+    public static void cheesehole(){
+        while (!holeque.isEmpty()){
+            int wy = holeque.peek().y;
+            int wx = holeque.peek().x;
+            holeque.poll();
 
-		for (int i = 0; i < N; i++) {
-			st = new StringTokenizer(br.readLine());
-			for (int j = 0; j < R; j++) {
-				arr[i][j] = Integer.parseInt(st.nextToken());
-			}
-		}
+            if(map[wy][wx]!=0)
+                continue;
 
-		v = new boolean[N][R];
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < R; j++) {
-				if (!v[i][j] && arr[i][j] == 0) {
-					boolean out = noairfind(arr, i, j);
-					c = new boolean[N][R];
-					if (!out) {// 공기가 안통하는 곳일 때
-						change(arr, i, j, 3);
-					} else { // 공기가 통하는 곳일 때
-						change(arr, i, j, 0);
-					}
-				}
-			}
-		}
+            map[wy][wx] = -1;
 
-		count = 0;
-		lastone = 0;
-		while (loop(arr)) {
-			count++;
+            for(int i=0;i<4;i++){
+                int fy = wy + dy[i];
+                int fx = wx + dx[i];
 
-			for (int i = 0; i < N; i++) {
-				for (int j = 0; j < R; j++) {
-					if (arr[i][j] == 3) {
-						arr[i][j] = 0;
-					}
-					if (arr[i][j] == 1) {
+                if(fy<0 || fx<0 || fy>=R || fx>=C || map[fy][fx]!=0)
+                    continue;
+                holeque.offer(new Node(fy,fx));
+            }
+        }
+    }
 
-					}
-				}
-			}
+    public static int meltingcheese(){
+        int meltcnt = 0;
 
-			v = new boolean[N][R];
-			for (int i = 0; i < N; i++) {
-				for (int j = 0; j < R; j++) {
-					if (!v[i][j] && arr[i][j] == 0) {
-						boolean out = noairfind(arr, i, j);
-						c = new boolean[N][R];
-						if (!out) {// 공기가 안통하는 곳일 때
-							change(arr, i, j, 3);
-						} else { // 공기가 통하는 곳일 때
-							change(arr, i, j, 0);
-						}
-					}
-				}
-			}
-		}
+        Queue<Node> meltque = new ArrayDeque<>();
+        for(int i=0;i<R;i++){
+            for(int j=0;j<C;j++){
+                if(map[i][j]==1){   // 치즈라면 4방향으로 공기 접촉여부 체크
+                    boolean iscontact = false;
+                    for(int k=0;k<4;k++){
+                        int fy = i+dy[k];
+                        int fx = j+dx[k];
 
-		System.out.println(count);
-		System.out.println(lastone);
+                        if(fy<0 || fx<0 ||fy>=R || fx>=C)
+                            continue;
+                        if(map[fy][fx] == -1){
+                            meltque.offer(new Node(i,j));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        while (!meltque.isEmpty()){
+            int wy = meltque.peek().y;
+            int wx = meltque.peek().x;
+            map[wy][wx] = 0;
+            holeque.offer(new Node(wy,wx));
+            meltcnt++;
+            meltque.poll();
+        }
+        return meltcnt;
+    }
 
-	}
+    public static void main(String[] args)throws Exception {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringBuilder sb = new StringBuilder();
+        String str = br.readLine();
+        StringTokenizer stz = new StringTokenizer(str);
+        R = Integer.parseInt(stz.nextToken());
+        C = Integer.parseInt(stz.nextToken());
+        map = new int[R][C];
+        int totalCheese =0, beforeCheese=0,totalTime=0;
 
-	private static void change(int[][] arr, int y, int x, int k) {
-		Queue<int[]> q = new ArrayDeque<>();
-		q.add(new int[] { y, x });
-		c[y][x] = true;
-		arr[y][x] = k;
-		while (!q.isEmpty()) {
-			int[] temp = q.poll();
-			for (int i = 0; i < 4; i++) {
+        for(int i=0;i<R;i++){
+            str = br.readLine();
+            stz = new StringTokenizer(str);
+            for(int j=0;j<C;j++){
+                map[i][j] = Integer.parseInt(stz.nextToken());
+                if(map[i][j] == 1)
+                    totalCheese++;
+            }
+        }
 
-				int goY = temp[0] + dy[i];
-				int goX = temp[1] + dx[i];
-				if (goY >= 0 && goX >= 0 && goX < arr[0].length && goY < arr.length && !c[goY][goX]
-						&& arr[goY][goX] == 0) {
-					c[goY][goX] = true;
-					arr[goY][goX] = k;
-					q.add(new int[] { goY, goX });
-				}
-			}
-		}
-	}
+        // 가장자리 치즈올수없음,
+        holeque.offer(new Node(0,0));
 
-	private static boolean noairfind(int[][] arr, int y, int x) {
-		boolean out = false;
-		Queue<int[]> q = new ArrayDeque<>();
-		q.add(new int[] { y, x });
-		v[y][x] = true;
-		while (!q.isEmpty()) {
-			int[] temp = q.poll();
-			for (int i = 0; i < 4; i++) {
-				int goY = temp[0] + dy[i];
-				int goX = temp[1] + dx[i];
-				if (goY < 0 || goX < 0 && goX >= arr[0].length && goY >= arr.length) {
-					out = true;
-				}
+        while (totalCheese !=0){
+            //치즈 구멍체크
+            cheesehole();
+            //치즈 녹이기
+            beforeCheese = meltingcheese();
+            totalCheese -= beforeCheese;
 
-				if (goY >= 0 && goX >= 0 && goX < arr[0].length && goY < arr.length && !v[goY][goX]
-						&& arr[goY][goX] == 0) {
-					v[goY][goX] = true;
-					q.add(new int[] { goY, goX });
-				}
-			}
-		}
+            totalTime++;
+        }
 
-		return out;
-
-	}
-
-	private static boolean loop(int[][] arr) {
-		boolean result = false;
-		ArrayList<int[]> list = new ArrayList<>();
-		for (int i = 0; i < N; i++) {
-			for (int j = 0; j < R; j++) {
-				if (arr[i][j] == 1) {
-					result = true;
-					for (int k = 0; k < 4; k++) {
-						int goY = dy[k] + i;
-						int goX = dx[k] + j;
-						if (arr[goY][goX] == 0) {
-							list.add(new int[] { i, j });
-							break;
-						}
-					}
-				}
-			}
-		}
-		if (list.size() > 0) {
-			lastone = 0;
-		}
-
-		for (int i = 0; i < list.size(); i++) {
-			arr[list.get(i)[0]][list.get(i)[1]] = 0;
-			lastone++;
-		}
-
-		return result;
-
-	}
-
+        sb.append(totalTime).append("\n").append(beforeCheese).append("\n");
+        System.out.print(sb);
+    }
 }
