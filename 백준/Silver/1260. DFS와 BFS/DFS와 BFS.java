@@ -1,9 +1,6 @@
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Queue;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -13,16 +10,6 @@ public class Main {
 	public static StringBuilder sb;
 	public static int N,M,V;
 	public static boolean[][] bmap;
-	
-	public static class Node{
-		int vertex;	// 정점번호
-		int next;	// 다음탐색번호
-		
-		Node(int data,int next){
-			this.vertex = data;
-			this.next = next;
-		}
-	}
 	
 	public static void DFS() {
 		boolean[] bcheckmap = new boolean[N+1];
