@@ -1,133 +1,479 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class Main {
 
-	public static int cctvcnt;
-	public static int N, M;
-	public static int[][] map;
-	public static ArrayList<Pair> list;
-	public static int[] dfsChoice;
-	public static int answer;
-	
-	//오, 아, 왼, 위
-	public static int[] dy = {0,1,0,-1};
-	public static int[] dx = {1,0,-1,0};
-	public static int[][][] ddd = {//카메라번호,선택 방향, 봐야되는값
-			{{0}},
-			{{0},{1},{2},{3}},
-			{{0,2},{1,3}},
-			{{0,3},{0,1},{1,2},{2,3}},
-			{{0,2,3},{0,1,3},{0,1,2},{1,2,3}},
-			{{0,1,2,3}}};
-
-	public static class Pair {
+	static class Node {
 		int y;
 		int x;
-		int d; // 현재방향
-		int num; // cctv 번호
+		int value;
+		int[] direction;
 
-		Pair(int y, int x, int d, int num) {
+		public Node(int y, int x, int value, int[] direction) {
+			
 			this.y = y;
 			this.x = x;
-			this.d = d;
-			this.num = num;
-		}
-	}
-
-	public static void watch() {
-		// 원본 맵 카피
-		int[][] copymap = new int[N][M];
-		for (int i = 0; i < N; i++) {
-			copymap[i] = map[i].clone();
-		}
-
-		//CCTV 탐색
-		for (int cctv = 0; cctv < cctvcnt; cctv++) {
-			//선택방향
-			int direct = dfsChoice[cctv];
-			int fy = list.get(cctv).y;
-			int fx = list.get(cctv).x;
-			int fnum = list.get(cctv).num;
-			// 해당 방향때 봐야되는 방향 탐색
-			for(int k = 0;k<ddd[fnum][direct].length;k++) {
-				int ffy = fy + dy[ddd[fnum][direct][k]];
-				int ffx = fx + dx[ddd[fnum][direct][k]];
-				
-				while(true) {
-					if(ffy<0 || ffx<0 || ffy>=N || ffx>=M ||
-							map[ffy][ffx]==6)
-						break;
-					
-					if(copymap[ffy][ffx] == 0) {
-						copymap[ffy][ffx] = -1;
-					}
-					ffy = ffy + dy[ddd[fnum][direct][k]];
-					ffx = ffx + dx[ddd[fnum][direct][k]];
-				}
-			}
-		}
-		
-		int cnt = 0;
-		for(int i=0;i<N;i++) {
-			for(int j=0;j<M;j++) {
-				if(copymap[i][j]==0)
-					cnt++;
-			}
-		}
-		
-		//사각지대 체크
-		if(cnt<answer)
-			answer = cnt;
-
-	}
-
-	public static void dfs(int depth) {
-
-		if (depth >= cctvcnt) {
-			// 검사 함수로 이동
-			watch();
-			return;
-		}
-
-		for (int i = 0; i < 4; i++) {
-			
-			if(list.get(depth).num == 2 && i>1)
-				continue;
-			if(list.get(depth).num == 5 && i>0)
-				continue;
-			
-			dfsChoice[depth] = i;
-			dfs(depth + 1);
+			this.value = value;
+			this.direction = direction;
 		}
 
 	}
 
-	public static void main(String[] args) throws Exception {
+	static int[][] arr;
+	static int[][] copy;
+	static int min;
+	static List<Node> list;
+	static int[] temp;
+
+	public static void main(String[] args) throws IOException {
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		String str = br.readLine();
-		StringTokenizer stz = new StringTokenizer(str);
-		N = Integer.parseInt(stz.nextToken());
-		M = Integer.parseInt(stz.nextToken());
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		int y = Integer.parseInt(st.nextToken());
+		int x = Integer.parseInt(st.nextToken());
+
+		arr = new int[y][x];
+		copy = new int[y][x];
+
 		list = new ArrayList<>();
-		map = new int[N][M];
-		
-		for (int i = 0; i < N; i++) {
-			str = br.readLine();
-			stz = new StringTokenizer(str);
-			for (int j = 0; j < M; j++) {
-				map[i][j] = Integer.parseInt(stz.nextToken());
-				if (map[i][j] >= 1 && map[i][j] <= 5) {
-					list.add(new Pair(i, j, 0, map[i][j]));
+
+		for (int i = 0; i < y; i++) {
+			st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < x; j++) {
+				arr[i][j] = Integer.parseInt(st.nextToken());
+				copy[i][j] = arr[i][j];
+				if (arr[i][j] != 0 && arr[i][j] != 6) {
+					if (arr[i][j] == 2) {
+						list.add(new Node(i, j, arr[i][j], new int[] { 1, 2 }));
+					} else if (arr[i][j] == 5) {
+						list.add(new Node(i, j, arr[i][j], new int[] { 1 }));
+					} else {
+						list.add(new Node(i, j, arr[i][j], new int[] { 1, 2, 3, 4 }));
+					}
+
 				}
 			}
 		}
-		answer = 64;
-		cctvcnt = list.size();
-		dfsChoice = new int[cctvcnt];
-		dfs(0);
-		System.out.println(answer);
+
+		min = Integer.MAX_VALUE;
+		temp = new int[list.size()];
+
+		combine(0, 0);
+
+		System.out.println(min);
+
 	}
+
+	private static void combine(int cnt, int start) {
+
+		if (cnt == list.size()) {
+
+			
+			int sum = 0;
+			for (int i = 0; i < temp.length; i++) {
+
+				if (list.get(i).value == 1) {
+					int x = list.get(i).x;
+					int y = list.get(i).y;
+					// 상
+					if (temp[i] == 1) {
+						for (int j = y - 1; j >= 0; j--) {
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+						// 하
+					} else if (temp[i] == 2) {
+
+						for (int j = y + 1; j < arr.length; j++) {
+
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+						// 좌
+					} else if (temp[i] == 3) {
+
+						for (int j = x - 1; j >= 0; j--) {
+
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						// 우
+					} else if (temp[i] == 4) {
+
+						for (int j = x + 1; j < arr[0].length; j++) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+					}
+
+				} else if (list.get(i).value == 2) {
+					int x = list.get(i).x;
+					int y = list.get(i).y;
+					// 좌우
+					if (temp[i] == 1) {
+
+						for (int j = x - 1; j >= 0; j--) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						for (int j = x + 1; j < arr[0].length; j++) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+						// 상하
+					} else if (temp[i] == 2) {
+						for (int j = y - 1; j >= 0; j--) {
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+
+						for (int j = y + 1; j < arr.length; j++) {
+
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+					}
+
+				} else if (list.get(i).value == 3) {
+					int x = list.get(i).x;
+					int y = list.get(i).y;
+					// 상우
+					if (temp[i] == 1) {
+						for (int j = y - 1; j >= 0; j--) {
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+
+						for (int j = x + 1; j < arr[0].length; j++) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						// 우하
+					} else if (temp[i] == 2) {
+						for (int j = x + 1; j < arr[0].length; j++) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						for (int j = y + 1; j < arr.length; j++) {
+
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+
+						// 하좌
+					} else if (temp[i] == 3) {
+
+						for (int j = y + 1; j < arr.length; j++) {
+
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+
+						for (int j = x - 1; j >= 0; j--) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						// 좌상
+					} else if (temp[i] == 4) {
+
+						for (int j = x - 1; j >= 0; j--) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						for (int j = y - 1; j >= 0; j--) {
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+
+					}
+
+				} else if (list.get(i).value == 4) {
+					int x = list.get(i).x;
+					int y = list.get(i).y;
+					// 좌상우
+					if (temp[i] == 1) {
+						for (int j = x - 1; j >= 0; j--) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						for (int j = y - 1; j >= 0; j--) {
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+						for (int j = x + 1; j < arr[0].length; j++) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						// 상우하
+					} else if (temp[i] == 2) {
+						for (int j = y - 1; j >= 0; j--) {
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+						
+						for (int j = x + 1; j < arr[0].length; j++) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+						
+						for (int j = y + 1; j < arr.length; j++) {
+
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+
+						// 우하좌
+					} else if (temp[i] == 3) {
+						
+						for (int j = x + 1; j < arr[0].length; j++) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+						
+						for (int j = y + 1; j < arr.length; j++) {
+
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+						
+						for (int j = x - 1; j >= 0; j--) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+
+						// 하좌상
+					} else if (temp[i] == 4) {
+						
+						for (int j = y + 1; j < arr.length; j++) {
+
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+						
+						for (int j = x - 1; j >= 0; j--) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+						
+						for (int j = y - 1; j >= 0; j--) {
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+
+					}
+
+				} else if (list.get(i).value == 5) {
+					int x = list.get(i).x;
+					int y = list.get(i).y;
+					// 상하좌우
+					if (temp[i] == 1) {
+
+						for (int j = x; j >= 0; j--) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						for (int j = x; j < arr[0].length; j++) {
+							if (arr[y][j] == 6) {
+								break;
+							} else if (arr[y][j] != 0) {
+								continue;
+							}
+							arr[y][j] = 7;
+						}
+
+						for (int j = y; j >= 0; j--) {
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+
+						for (int j = y; j < arr.length; j++) {
+
+							if (arr[j][x] == 6) {
+								break;
+							} else if (arr[j][x] != 0) {
+								continue;
+							}
+							arr[j][x] = 7;
+						}
+					}
+				}
+			}
+			
+
+			
+			for(int i=0;i<arr.length;i++) {
+				for(int j=0;j<arr[0].length;j++) {
+					if(arr[i][j]==0) {
+						sum++;
+					}
+				}
+			}
+			if (sum <= min) {
+				min = sum;
+			}
+
+			for (int i = 0; i < arr.length; i++) {
+				for (int j = 0; j < arr[0].length; j++) {
+					arr[i][j] = copy[i][j];
+				}
+			}
+
+		} else {
+
+			for (int i = start; i < list.size(); i++) {
+				if (list.get(cnt).value == 2) {
+					for (int i2 = 0; i2 < 2; i2++) {
+						temp[cnt] = list.get(cnt).direction[i2];
+						combine(cnt + 1, i + 1);
+					}
+				} else if (list.get(cnt).value == 5) {
+					temp[cnt] = list.get(i).direction[0];
+					combine(cnt + 1, i + 1);
+				} else {
+					for (int i2 = 0; i2 < 4; i2++) {
+						temp[cnt] = list.get(cnt).direction[i2];
+						combine(cnt + 1, i + 1);
+					}
+				}
+			}
+
+		}
+	}
+
 }
