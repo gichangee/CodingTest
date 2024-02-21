@@ -1,80 +1,81 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
+/**
+ * @author 박기창
+ * 인접리스트 사용하기
+ */
 public class Main {
-	
-	public static class Node{
-		ArrayList<Integer> list;
-		
-		Node(){
-			this.list = new ArrayList<>();
-		}
-	}
-	
-	public static int N,M;
-	public static Node[] map;
-	public static ArrayList<Integer> maplist = new ArrayList<>();
-	public static boolean[] bmap;
-	public static boolean isout = false;
-	public static void dfs(int depth,int vertex) {
-		if(isout)
-			return;
-		
-		if(depth>=5) {
-			isout = true;
-			return;
-		}
-		
-		for(int i=0;i<map[vertex].list.size();i++) {
-			if(bmap[map[vertex].list.get(i)])
-				continue;
-			bmap[map[vertex].list.get(i)] = true;
-			dfs(depth+1,map[vertex].list.get(i));
-			bmap[map[vertex].list.get(i)] = false;
-		}
-		
-	}
-	
-	public static void main(String[] args)throws Exception {
+
+	static int N;
+	static boolean a;
+
+	public static void main(String[] args) throws IOException {
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringBuilder sb = new StringBuilder();
-		String str = br.readLine();
-		StringTokenizer stz = new StringTokenizer(str);
+		StringTokenizer st = new StringTokenizer(br.readLine());
+
+		N = Integer.parseInt(st.nextToken());
+		int R = Integer.parseInt(st.nextToken());
+
+		ArrayList<ArrayList<Integer>> list = new ArrayList<>();
+
+		//리스트 초기화 하기
+		for (int i = 0; i < N; i++) {
+			list.add(new ArrayList<>());
+		}
+
 		
-		N = Integer.parseInt(stz.nextToken());
-		M = Integer.parseInt(stz.nextToken());
-		map = new Node[N];
-		bmap = new boolean[N];
-		
-		for(int i=0;i<N;i++) {
-			map[i] = new Node();
+		//인접리스트에 값 넣기
+		for (int i = 0; i < R; i++) {
+			st = new StringTokenizer(br.readLine());
+			int x = Integer.parseInt(st.nextToken());
+			int y = Integer.parseInt(st.nextToken());
+			list.get(x).add(y);
+			list.get(y).add(x);
 		}
 		
-		for(int i=0;i<M;i++) {
-			str = br.readLine();
-			stz = new StringTokenizer(str);
-			int a = Integer.parseInt(stz.nextToken());
-			int b = Integer.parseInt(stz.nextToken());
-			map[a].list.add(b);
-			map[b].list.add(a);
-		}
+		
+		boolean[] v = new boolean[N];
+		a = false;
 		for(int i=0;i<N;i++) {
-			bmap[i] = true;
-			dfs(1,i);
-			bmap[i] = false;
-			if(isout) {
-				break;
+			v = new boolean[N];
+            v[i]=true;
+			if(dfs(list, v, i, 0)>=4){
+                a=true;
+                break;
+            }
+			
+		}
+		if (a) {
+			System.out.println("1");
+		} else {
+			System.out.println("0");
+
+		}
+		
+
+		
+
+	}
+
+	private static int dfs(ArrayList<ArrayList<Integer>> list, boolean[] v, int cnt, int depth) {
+
+		if (depth >= 4) {
+			return depth;
+		}
+	    int d=0;
+		for (int i = 0; i < list.get(cnt).size(); i++) {
+			if (!v[list.get(cnt).get(i)]) {
+				v[list.get(cnt).get(i)] = true;
+				d=Math.max(d,dfs(list, v, list.get(cnt).get(i), depth + 1));
+				v[list.get(cnt).get(i)] = false;
 			}
 		}
-		
-		if(isout)
-			sb.append("1\n");
-		else 
-			sb.append("0\n");
-		
-		System.out.print(sb);
+        return d;
 	}
 
 }
