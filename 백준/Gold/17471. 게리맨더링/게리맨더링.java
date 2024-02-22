@@ -1,189 +1,182 @@
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Queue;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
-public class Main{
-	
-	// 각 인구수 담는 배열
-	public static int[] peoplearr;
-	//연결 관계 확인을 위한 2차원 배열
-	public static boolean[][] conmap;
-	public static int[] map;
-	public static int answer = 10000000;
-	public static int N;
-	
-	public static boolean np(int[] p) {
-		
-		int i = p.length-1;
-		while(i>0 && p[i-1]>= p[i])
-			i--;
-		
-		if(i==0)
-			return false;
-		
-		int j=p.length-1;
-		while(p[i-1]>=p[j])
-			j--;
-		swap(p,i-1,j);
-		
-		j = p.length-1;
-		
-		while(i<j) {
-			swap(p,i++,j--);
-		}
-		return true;
-	}
-	
-	public static void swap(int[] p, int a, int b) {
-		int c = p[a];
-		p[a]= p[b];
-		p[b] = c;
-	}
-	
-	public static void main(String[] args) throws Exception{
+public class Main {
+
+	static int[] temp;
+	static int N;
+	static int min;
+	static ArrayList<Integer> list[];
+	static boolean[] v;
+	static boolean left, right;
+	static int[] human;
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		
 		N = Integer.parseInt(br.readLine());
-		conmap = new boolean[N][N];
-		peoplearr = new int[N];
-		map = new int[N];
-		
-		StringTokenizer stz = new StringTokenizer(br.readLine());
-		for(int i=0;i<N;i++) {
-			peoplearr[i] = Integer.parseInt(stz.nextToken());
+		String s = br.readLine();
+		String[] split = s.split(" ");
+		human = new int[N + 1];
+		for (int i = 1; i <= N; i++) {
+			human[i] = Integer.parseInt(split[i - 1]);
 		}
-		
-		for(int i=0;i<N;i++) {
-			stz = new StringTokenizer(br.readLine());
-			int M = Integer.parseInt(stz.nextToken());
-			for(int j=0;j<M;j++) {
-				int k = Integer.parseInt(stz.nextToken())-1;
-				conmap[i][k] = true;
-				conmap[k][i] = true;
+
+		list = new ArrayList[N + 1];
+
+		for (int i = 1; i <= N; i++) {
+			list[i] = new ArrayList<>();
+		}
+
+		for (int i = 1; i <= N; i++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+
+			int r = Integer.parseInt(st.nextToken());
+			for (int j = 0; j < r; j++) {
+				int x = Integer.parseInt(st.nextToken());
+				list[i].add(x);
+				list[x].add(i);
 			}
+
+		}
+
+		// 6일때
+		// 조합 1개부터 5개 까지
+		min = Integer.MAX_VALUE;
+		for (int i = 1; i < N; i++) {
+			temp = new int[i];
+			combine(0, 0, i);
 		}
 		
-		//조합 뽑아내기, 뽑아낼 수 있는 갯수는1~N개 /2
-		int leng = 0;
-		if(N %2 == 0)
-			leng = N/2;
-		else
-			 leng = (N/2)+1;
-		
-		for(int i=0;i<leng;i++) {
-			int[] p = new int[N];
-			for(int j=0,k=p.length-1;j<=i;j++,k--) {
-				p[k] = 1;
-			}
-			do {
-				int aPeople = 0;
-				int bPeople = 0;
-				
-				boolean[][] copymap = new boolean[N][N];
-				for(int j=0;j<N;j++) {
-					copymap[j] = conmap[j].clone();
-				}
-				
-				ArrayList<Integer> alist = new ArrayList<>();
-				ArrayList<Integer> blist = new ArrayList<>();
-				for(int j=0;j<N;j++) {
-					if(p[j] == 1) {
-						alist.add(j);
-					}
-					else {
-						blist.add(j);
-					}
-				}
-				
-				//연결부 지워주기
-				for(int j=0;j<alist.size();j++) {
-					for(int k=0;k<blist.size();k++) {
-						copymap[alist.get(j)][blist.get(k)] = false;
-						copymap[blist.get(k)][alist.get(j)] = false;
-					}
-				}
-				//0
-				Queue<Integer> que = new ArrayDeque<>();
-				boolean[] bmap = new boolean[N];
-				que.offer(alist.get(0));
-				bmap[alist.get(0)] = true;
-				
-				while(!que.isEmpty()) {
-					int num = que.poll();
-					
-					for(int k=0;k<N;k++) {
-						if(copymap[num][k] && !bmap[k]) {
-							bmap[k] = true;
-							que.offer(k);
-						}
-					}
-				}
-				boolean isout = true;
-				for(int j=0;j<N;j++) {
-					if(p[j] == 1 && !bmap[j]) {
-						isout = false;
-					}
-					else if(p[j] == 0 && bmap[j]) {
-						isout = false;
-					}
-				}
-				if(!isout) {
-					continue;
-				}
-				
-				//1
-				bmap = new boolean[N];
-				que.offer(blist.get(0));
-				bmap[blist.get(0)] = true;
-				
-				while(!que.isEmpty()) {
-					int num = que.poll();
-					
-					for(int k=0;k<N;k++) {
-						if(copymap[num][k] && !bmap[k]) {
-							bmap[k] = true;
-							que.offer(k);
-						}
-					}
-				}
-				isout = true;
-				for(int j=0;j<N;j++) {
-					if(p[j] == 1 && bmap[j]) {
-						isout = false;
-					}
-					else if(p[j] == 0 && !bmap[j]) {
-						isout = false;
-					}
-				}
-				//이어질 수 있다면 
-				if(isout) {
-					
-					for(int j=0;j<N;j++) {
-						if(p[j] == 1 ) {
-							aPeople+= peoplearr[j];
-						}
-						else {
-							bPeople+= peoplearr[j];
-						}
-					}
-					
-					int peoplenum = Math.abs(aPeople - bPeople);
-					if(peoplenum<answer)
-						answer = peoplenum;
-				}
-			}while(np(p));
+		if(min ==Integer.MAX_VALUE ) {
+			min=-1;
 		}
-		
-		//조합에 맞게 연결될 수 있는지 여부 체크
-		
-		// 인구차이 최소인지 체크
-		if(answer == 10000000)
-			System.out.print("-1\n");
-		else
-			System.out.print(answer + "\n");
-		
+		System.out.println(min);
+
 	}
+
+	private static void combine(int cnt, int start, int len) {
+
+		if (cnt == len) {
+			if (len > N / 2) {
+				return;
+			}
+			v = new boolean[N + 1];
+			for (int i = 0; i < len; i++) {
+				v[temp[i]] = true;
+			}
+
+			int[] temp2 = new int[N - len];
+			for (int i = 1, j = 0; i <= N; i++) {
+				if (!v[i]) {
+					temp2[j++] = i;
+				}
+			}
+			
+//			System.out.print(Arrays.toString(temp) + "   ");
+//			System.out.println(Arrays.toString(temp2));
+
+			left = false;
+			right = false;
+			// 왼쪽 배열이 알맞은 구역인지 확인
+			if(temp.length ==1) {
+				left = true;
+			}
+			
+			if (temp.length != 1) {
+				v = new boolean[N + 1];
+
+				for (int i = 0; i < temp2.length; i++) {
+					v[temp2[i]] = true;
+				}
+				dfs(temp[0], temp, temp2);
+			}
+
+			// 오른쪽 구역이 알맞은 구역인지 확인
+			v = new boolean[N + 1];
+			for (int i = 0; i < temp.length; i++) {
+				v[temp[i]] = true;
+			}
+			//System.out.println(Arrays.toString(v));
+			dfs2(temp2[0], temp2, temp);
+			//System.out.println(left + " " + right);
+
+
+			if (left) {
+				if (right) {
+//					System.out.print(Arrays.toString(temp) + "   ");
+//					System.out.println(Arrays.toString(temp2));
+					
+					int sum=0;
+					int sum2=0;
+					for(int i=0;i<temp.length;i++) {
+						sum+=human[temp[i]];
+					}
+					
+					for(int i=0;i<temp2.length;i++) {
+						sum2+=human[temp2[i]];
+					}
+					int result = Math.abs(sum-sum2);
+					if(min > result) {
+						min= result;
+					}
+				}
+			}
+
+			return;
+		} else {
+			for (int i = start; i < N; i++) {
+				temp[cnt] = i + 1;
+				combine(cnt + 1, i + 1, len);
+
+			}
+		}
+	}
+
+	private static void dfs(int cnt, int[] temp2, int[] temp22) {
+		v[cnt] = true;
+		int result = 0;
+		for (int i = 1; i < v.length; i++) {
+			if (v[i]) {
+				result++;
+			}
+		}
+		if (result == v.length - 1) {
+			left =true;
+		}
+		for (int i = 0; i < list[cnt].size(); i++) {
+			//System.out.println(list[cnt].get(i));
+			if (!v[list[cnt].get(i)]) {
+				v[list[cnt].get(i)] = true;
+				dfs(list[cnt].get(i), temp2, temp22);
+			}
+		}
+
+	}
+	
+	private static void dfs2(int cnt, int[] temp2, int[] temp22) {
+		v[cnt] = true;
+		int result = 0;
+		for (int i = 1; i < v.length; i++) {
+			if (v[i]) {
+				result++;
+			}
+		}
+		if (result == v.length - 1) {
+			right=true;
+		}
+		for (int i = 0; i < list[cnt].size(); i++) {
+			if (!v[list[cnt].get(i)]) {
+				//System.out.println(list[cnt].get(i));
+				v[list[cnt].get(i)] = true;
+				dfs2(list[cnt].get(i), temp2, temp22);
+			}
+		}
+
+	}
+
 }
