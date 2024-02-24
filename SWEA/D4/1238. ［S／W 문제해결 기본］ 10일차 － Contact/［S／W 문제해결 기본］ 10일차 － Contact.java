@@ -1,81 +1,79 @@
+
+
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
 public class Solution {
 
-	public static class Call{
-		int who;
-		int cnt;
-		Call(int who, int cnt){
-			this.who = who;
-			this.cnt = cnt;
-		}
-	}
 	
-	public static class Node{
-		ArrayList<Integer> list;
-		Node(){
-			this.list = new ArrayList<>();
-		}
-	}
-	
-	public static void main(String[] args) throws Exception {
+	static int max;
+	static List<Integer>[] list;
+	public static void main(String[] args) throws IOException {
+
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringBuilder sb = new StringBuilder();
-		for(int tc = 1;tc<=10;tc++) {
-			StringTokenizer stz = new StringTokenizer(br.readLine()," ");
-			int leng = Integer.parseInt(stz.nextToken());
-			int snum = Integer.parseInt(stz.nextToken());
-			Node[] nodes = new Node[101];
-			boolean[] bcheck = new boolean[101];
+		
+		for(int test_case=1;test_case<=10;test_case++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
 			
-			for(int i=0;i<101;i++) {
-				nodes[i]= new Node();
+			int R = Integer.parseInt(st.nextToken());
+			int start = Integer.parseInt(st.nextToken());
+			
+			max = Integer.MIN_VALUE;
+			int[][] arr = new int[101][101];
+			boolean[] v = new boolean[101];
+			list = new ArrayList[101];
+			for(int i=1;i<101;i++) {
+				list[i] = new ArrayList<>();
 			}
 			
-			stz = new StringTokenizer(br.readLine());
-			for(int i=0;i<leng;i+=2) {
-				int from = Integer.parseInt(stz.nextToken());
-				int to = Integer.parseInt(stz.nextToken());
-				
-				nodes[from].list.add(to);
+			st = new StringTokenizer(br.readLine());
+			for(int i=0;i<R/2;i++) {
+				int y = Integer.parseInt(st.nextToken());
+				int x = Integer.parseInt(st.nextToken());
+				arr[y][x] = 1;
 			}
 			
-			Queue<Call> que = new ArrayDeque<>();
-			que.offer(new Call(snum, 0));
-			bcheck[snum] = true;
-			int answercnt = 0;
-			int answernum = 0;
+			bfs(arr,v,start,0);
+			System.out.println("#"+test_case+" "+max);
 			
-			while(!que.isEmpty()) {
-				Call call = que.poll();
-				if(call.cnt>answercnt) {
-					answercnt = call.cnt;
-					answernum = call.who;
-					if(answernum<call.who) {
-						answernum = call.who;
-					}
-				}
-				else if(call.cnt==answercnt) {
-					if(answernum<call.who) {
-						answernum = call.who;
-					}
-				}
-				for(int i=0;i<nodes[call.who].list.size();i++) {
-					if(bcheck[nodes[call.who].list.get(i)])
-						continue;
-					bcheck[nodes[call.who].list.get(i)] = true;
-					que.offer(new Call(nodes[call.who].list.get(i), call.cnt+1));
-				}
-			}
-			sb.append("#").append(tc).append(" ");
-			sb.append(answernum).append("\n");
 		}
-		System.out.print(sb);
+		
+	}
+
+	private static void bfs(int[][] arr, boolean[] v, int start, int depth) {
+		
+		Queue<int []> q = new ArrayDeque<>();
+		int d =0;
+		q.add(new int[] {start,depth});
+		v[start]=true;	
+		while(!q.isEmpty()) {
+			int[] x = q.poll();
+			for(int i=1;i<101;i++) {
+				if(arr[x[0]][i]==1 && !v[i]){
+					v[i]=true;
+					q.add(new int[] {i,x[1]+1});
+					list[x[1]+1].add(i);
+					d=x[1]+1;
+				}
+			}
+		
+		}
+		for(int i=0;i<list[d].size();i++) {
+			if(max<=list[d].get(i)) {
+				max=list[d].get(i);
+			}
+		}
+	
+		
+		
+		
 	}
 
 }
