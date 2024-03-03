@@ -1,21 +1,17 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
 
-	static class Node {
+	static class Edge {
 		int from;
 		int to;
-		int weight;
+		int weigth;
 
-		public Node(int from, int to, int weight) {
+		public Edge(int from, int to, int weigth) {
 			this.from = from;
 			this.to = to;
-			this.weight = weight;
+			this.weigth = weigth;
 		}
 
 	}
@@ -29,7 +25,7 @@ public class Main {
 
 		int start = Integer.parseInt(br.readLine());
 
-		List<Node>[] list = new ArrayList[V + 1];
+		List<Edge>[] list = new ArrayList[V + 1];
 
 		for (int i = 1; i <= V; i++) {
 			list[i] = new ArrayList<>();
@@ -39,53 +35,58 @@ public class Main {
 			st = new StringTokenizer(br.readLine());
 			int from = Integer.parseInt(st.nextToken());
 			int to = Integer.parseInt(st.nextToken());
-			int weight = Integer.parseInt(st.nextToken());
-			list[from].add(new Node(from, to, weight));
+			int weigth = Integer.parseInt(st.nextToken());
+			list[from].add(new Edge(from, to, weigth));
 		}
 
 		boolean[] v = new boolean[V + 1];
-		int[] minedge = new int[V + 1];
+		int[] minEdge = new int[V + 1];
 
-		int INF = Integer.MAX_VALUE;
-
-		for (int i = 0; i < minedge.length; i++) {
-			minedge[i] = INF;
+		for (int i = 0; i < minEdge.length; i++) {
+			minEdge[i] = Integer.MAX_VALUE;
 		}
 
-		minedge[start] = 0;
+		minEdge[start] = 0;
 		int min = 0;
-		int stopOver = 0;
+		int stopIndex = -1;
 
-		for (int i = 1; i <=V; i++) {
-			min = INF;
-			stopOver = -1;
-			for (int j = 1; j <= V; j++) {
-				if (!v[j] && min > minedge[j]) {
-					min = minedge[j];
-					stopOver = j;
+		for (int i = 1; i <= V; i++) {
+
+			min = Integer.MAX_VALUE;
+
+			stopIndex = -1;
+			for (int j = 0; j < minEdge.length; j++) {
+				if (!v[j] && min > minEdge[j]) {
+					min = minEdge[j];
+					stopIndex = j;
 				}
+
 			}
 
-			if (stopOver == -1)
+			if (stopIndex == -1) {
 				break;
-			v[stopOver] = true;
+			}
 
-			for (int j = 0; j < list[stopOver].size(); j++) {
-				if (!v[list[stopOver].get(j).to]
-						&& minedge[list[stopOver].get(j).to] > min + list[stopOver].get(j).weight) {
-					minedge[list[stopOver].get(j).to] = min + list[stopOver].get(j).weight;
+			v[stopIndex] = true;
+			
+			for(int j=0;j<list[stopIndex].size();j++) {
+				if(minEdge[list[stopIndex].get(j).to] > min + list[stopIndex].get(j).weigth) {
+					minEdge[list[stopIndex].get(j).to]=min + list[stopIndex].get(j).weigth;
 				}
 			}
-		}
 
-		for (int i = 1; i < minedge.length; i++) {
-			if(minedge[i]== INF) {
+		}
+		
+		
+		for(int i=1;i<minEdge.length;i++) {
+			if(minEdge[i]== Integer.MAX_VALUE) {
 				System.out.println("INF");
 			}else {
-				System.out.println(minedge[i]);
+				System.out.println(minEdge[i]);
 			}
 			
 		}
+
 	}
 
 }
