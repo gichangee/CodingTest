@@ -1,77 +1,113 @@
+
+
+import java.io.*;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Scanner;
+import java.util.Collections;
+import java.util.List;
+import java.util.StringTokenizer;
 
 public class Solution {
 
-	static class Node{
-		int x;
-		int y;
-		public Node(int x) {
-			this.x = x;
-		}
-		
-		
-		
-	}
-	
-	public static void main(String[] args) {
-		// TODO Auto-generated method stub
+	static class Edge implements Comparable<Edge> {
+		int from;
+		int to;
+		double weigth;
 
-		Scanner sc = new Scanner(System.in);
-		int t = sc.nextInt();
-		for(int test_case=1;test_case<=t;test_case++) {
-			int N = sc.nextInt();
-			
-			Node[] land = new Node[N];
-			boolean[] visited = new boolean[N];
-			double[] minEdge = new double[N];
-			
-			for(int i=0;i<N;i++) {
-				land[i] = new Node(sc.nextInt());
-			}
-			
-			for(int i=0;i<N;i++) {
-				land[i].y = sc.nextInt();
-			}
-			
-			double E = sc.nextDouble();
-			
-			Arrays.fill(minEdge, Integer.MAX_VALUE);
-			minEdge[0] = 0;
-			double result = 0;
-			int c;
-			for(c= 0;c<N;c++) {
-				
-				
-				//step1 : 비트리 정점 중 최소간선비용의 정점 찾기
-				double min = Double.MAX_VALUE;
-				int minVertex = -1;
-				for(int i=0;i<N;i++) {
-					if(!visited[i] && minEdge[i]<min) {
-						min = minEdge[i];
-						minVertex=i;
-					}
-				}
-				
-				if(minVertex == -1) {
-					break;
-				}
-				
-				result+= min*min*E;
-				visited[minVertex] = true;
-				
-				
-				//step 2  : 새롭게 트리 정점에 확장된 정점 기준으로 비트리 정점들과의 간선비용 고려 최적 업데이트
-				for(int i=0;i<N;i++) {
-					double distance = Math.sqrt(Math.pow(land[minVertex].x-land[i].x,2)+Math.pow(land[minVertex].y-land[i].y,2));
-					if(!visited[i] && distance < minEdge[i]) {
-						minEdge[i]=distance;
-					}
-				}
-			}
-			
-			System.out.println("#"+test_case+" "+(c==N?(long)Math.round(result) : -1));
+		public Edge(int from, int to, double d) {
+			this.from = from;
+			this.to = to;
+			this.weigth = d;
 		}
+
+		@Override
+		public int compareTo(Edge o) {
+
+			return Double.compare(this.weigth, o.weigth);
+		}
+
+	}
+
+	static int[] parents;
+	public static void main(String[] args) throws NumberFormatException, IOException {
+
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int T = Integer.parseInt(br.readLine());
+		for (int i = 1; i <= T; i++) {
+			StringTokenizer st = new StringTokenizer(br.readLine());
+
+			int N = Integer.parseInt(st.nextToken());
+
+			int[][] island = new int[N][2];
+			st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < N; j++) {
+				island[j][0] = Integer.parseInt(st.nextToken());
+			}
+			st = new StringTokenizer(br.readLine());
+			for (int j = 0; j < N; j++) {
+				island[j][1] = Integer.parseInt(st.nextToken());
+			}
+			st = new StringTokenizer(br.readLine());
+			double e = Double.parseDouble(st.nextToken());
+			List<Edge> list = new ArrayList<>();
+			for (int j = 0; j < N-1; j++) {
+				for (int z = j+1; z < N; z++) {
+					list.add(new Edge(j, z, distance(island[j], island[z])));
+				}
+			}
+
+			Collections.sort(list);
+			
+			
+
+			parents = new int[N];
+			
+			for(int j=0;j<parents.length;j++) {
+				parents[j]=j;
+			}
+
+			int cnt = 0;
+			double weigth = 0;
+			for (Edge e2 : list) {
+				if (!union(e2.from, e2.to)) {
+					continue;
+				} else {
+					weigth += e2.weigth * e2.weigth * e;
+					cnt++;
+					if (cnt == N - 1) {
+						break;
+					}
+				}
+			}
+			
+			System.out.println("#"+i+" "+Math.round(weigth));
+
+		}
+
+	}
+
+	private static boolean union(int from, int to) {
+		int a = find(from);
+		int b = find(to);
+		if(a !=b ) {
+			parents[b] =a;
+			return true;
+		}
+		return false;
+	}
+
+	private static int find(int from) {
+		if(parents[from] == from) {
+			return from;
+		}else {
+			return parents[from] = find(parents[from]);
+		}
+	}
+
+	private static double distance(int[] island1, int[] island2) {
+
+		return Math
+				.sqrt(Math.pow(Math.abs(island1[0] - island2[0]), 2) + Math.pow(Math.abs(island1[1] - island2[1]), 2));
 	}
 
 }
