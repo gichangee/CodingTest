@@ -58,31 +58,7 @@ public class Main {
 				length.add(new int[] { temp[0], temp[1] + 1 });
 			}
 
-//			Iterator<int[]> it = length.iterator();
-//			int[] arr;
-//			while (it.hasNext()) {
-//				arr = it.next();
-//				System.out.println(arr[0] + " " + arr[1] + " ");
-//			}
-//			System.out.println();
 
-			boolean a = true;
-
-			// 만약 시간을 초과하는 트럭이 있으면 빼버리기
-			for (int i = 0; i < x; i++) {
-				int[] temp = length.poll();
-				if (temp[1] > w) {
-					
-					if (a && !q.isEmpty() && maxKg + q.peek() <= L && length.size() < w) {
-						int x2 = q.poll();
-						length.add(new int[] { x2, 1 });
-						maxKg += x2;
-						a = false;
-					}
-				} else {
-					length.add(new int[] { temp[0], temp[1] });
-				}
-			}
 
 		}
 
