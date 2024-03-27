@@ -24,13 +24,30 @@ public class Solution {
 				LIS[i]=1;
 			}
 			
-			for(int i=0;i<n;i++) {
+			
+//			for(int i=0;i<n;i++) {
+//				for(int j=i;j>=0;j--) {
+//					if(arr[i]>arr[j] && LIS[i]<LIS[j]+1) {
+//						LIS[i]=LIS[j]+1;
+//					}
+//				}
+//			}
+			
+			
+			
+			
+			for(int i=1;i<n;i++) {
+				int maxL = 0;
 				for(int j=i;j>=0;j--) {
-					if(arr[i]>arr[j] && LIS[i]<LIS[j]+1) {
-						LIS[i]=LIS[j]+1;
+					if(arr[i]>arr[j]) {
+						if(maxL<LIS[j]) {
+							maxL=LIS[j];
+						}
 					}
 				}
+				LIS[i]=maxL+1;
 			}
+			
 			
 			int max = Integer.MIN_VALUE;
 			for(int i=0;i<n;i++) {
