@@ -40,10 +40,6 @@ public class Main {
 			
 			
 			for(int i=0;i<3;i++) {
-				if(temp[0]<0 || temp[0]>100000) {
-					continue;
-				}
-				
 	
 				if(i==0 && temp[0]+1 <=100000 &&!v[temp[0]+1]) {
 					v[temp[0]+1]=true;
