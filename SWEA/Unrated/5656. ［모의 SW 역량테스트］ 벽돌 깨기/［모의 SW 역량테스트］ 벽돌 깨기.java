@@ -59,7 +59,6 @@ public class Solution {
 
 				Queue<int[]> blockList = new ArrayDeque<>();
 				Queue<int[]> q = new ArrayDeque<>();
-				// 세로줄에서 위에서부터 0이 아닌 값 찾기
 				for (int j = 0; j < H; j++) {
 					if (arr[j][temp[i]] > 0) {
 						blockList.add(new int[] {j, temp[i],arr[j][temp[i]]});
@@ -77,39 +76,28 @@ public class Solution {
 					boom(blockList, arr,v,q);
 				}
 				
-			
-
 				while(!q.isEmpty()) {
 					int[] temp1 = q.poll();
 					arr[temp1[0]][temp1[1]] = 0;
 				}
-
-
-				
-			
 				
 				for (int k = 0; k < W; k++) {
-					//아래에서부터 블록을 확인해서 저장할 큐
 					Queue<Integer> sort = new ArrayDeque<>();
-					//아래에서 부터 블록을 큐에 저장하고 해당 블록을 지운다.
 					for (int j = H - 1; j >= 0; j--) {
 						if (arr[j][k] != 0) {
 							sort.offer(arr[j][k]);
 							arr[j][k] = 0;
 						}
 					}
-					//아래에서부터 블록을 쌓는다.
 					for (int j = H - 1; !sort.isEmpty(); j--) {
 						v[j][k]=false;
 						arr[j][k] = sort.poll();
 					}
 
 				}
-				
-			
-			}
 
-			
+
+			}
 
 			int count = 0;
 			for (int i = 0; i < H; i++) {
@@ -123,8 +111,6 @@ public class Solution {
 			if (min > count) {
 				min = count;
 			}
-			
-			
 
 		} else {
 			for (int i = 0; i < W; i++) {
@@ -146,7 +132,7 @@ public class Solution {
 							if (ny >= 0 && nx >= 0 && nx < W && ny < H && arr[ny][nx] != 0) {
 								if(!v[ny][nx]) {
 									blockList.add(new int[] {ny,nx,arr[ny][nx]});
-									q.add(new int[] {ny,nx});
+									q.add(new int[] {ny,nx,arr[ny][nx]});
 									v[ny][nx] = true;
 								}
 
