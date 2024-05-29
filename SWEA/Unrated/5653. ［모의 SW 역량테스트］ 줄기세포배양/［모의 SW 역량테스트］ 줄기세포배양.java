@@ -1,81 +1,92 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
+
 public class Solution {
- 
-    static class Cell{
-        int x,y;
-        int status;
-        Cell next;
-        public Cell(int x, int y , int status, Cell next){
-            this.x=x;
-            this.y=y;
-            this.status= status;
-            this.next = next;
-        }
-    }
-    static Cell cells[];
-    static int cnt ;
-    static int N,M,K;
-    static int map[][];
-    static int dx[] = {-1,1,0,0};
-    static int dy[] = {0,0,-1,1};
-    public static void main(String[] args) throws IOException {
- 
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
- 
-        int T = Integer.parseInt(st.nextToken());
-        for(int t = 1;t<=T;t++){
- 
-            st = new StringTokenizer(br.readLine());
-            N = Integer.parseInt(st.nextToken());
-            M = Integer.parseInt(st.nextToken());
-            K = Integer.parseInt(st.nextToken());
-            cells = new Cell[11]; //1~10
-            cnt = 0;
-            map = new int[N+K][M+K];
-            int start = K/2;
-            for(int i =start ; i<start+N;i++){
-                st = new StringTokenizer(br.readLine());
-                for(int j=start; j<start+M;j++){
-                    int X = Integer.parseInt(st.nextToken());
-                    map[i][j]=X;
-                    if(X!=0){
-                        cells[X] = new Cell(i,j,2*X,cells[X]);
-                        cnt++;
-                    }
-                }
-            }
-            go();
-            System.out.println("#"+t+" "+cnt);
-        }
-    }
-    public static void go(){
-        for(int i=0;i<K;i++){
-            for(int j=10;j>0;j--){
-                for(Cell cell = cells[j];cell!=null;cell = cell.next){
-                    cell.status--;
-                    if(cell.status>=j){
-                        continue;
-                    }
- 
-                    if(cell.status==0){
-                        cnt--;
-                    }
- 
-                    for(int a=0;a<4;a++){
-                        int x = cell.x+dx[a];
-                        int y = cell.y+dy[a];
-                        if(map[x][y]==0){
-                            cnt++;
-                            map[x][y] = j;
-                            cells[j] = new Cell(x,y,2*j,cells[j]);
-                        }
-                    }
-                }
-            }
-        }
-    }
+
+	static class cell {
+		int y;
+		int x;
+		int status;
+		cell next;
+
+		public cell(int y, int x, int status, cell next) {
+			this.y = y;
+			this.x = x;
+			this.status = status;
+			this.next = next;
+		}
+	}
+
+	static int[] dy = { -1, 1, 0, 0 };
+	static int[] dx = { 0, 0, -1, 1 };
+
+	static cell[] cells;
+
+	public static void main(String[] args) throws NumberFormatException, IOException {
+		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+		int T = Integer.parseInt(br.readLine());
+
+		for (int TC = 1; TC <= T; TC++) {
+
+			int cnt = 0;
+			cells = new cell[11];
+			StringTokenizer st = new StringTokenizer(br.readLine());
+			int N = Integer.parseInt(st.nextToken());
+			int M = Integer.parseInt(st.nextToken());
+			int K = Integer.parseInt(st.nextToken());
+
+			int[][] arr = new int[N + K][M + K];
+
+			int start = K / 2;
+
+			for (int i = start; i < N + start; i++) {
+				st = new StringTokenizer(br.readLine());
+
+				for (int j = start; j < M + start; j++) {
+					arr[i][j] = Integer.parseInt(st.nextToken());
+
+					if (arr[i][j] != 0) {
+						cells[arr[i][j]] = new cell(i, j, arr[i][j] * 2, cells[arr[i][j]]);
+						cnt++;
+					}
+				}
+
+			}
+
+			for (int i = 0; i < K; i++) {
+
+				for (int z = 10; z >= 1; z--) {
+
+					for (cell c = cells[z]; c != null; c = c.next) {
+
+						c.status--;
+
+						if (c.status >= z) {
+							continue;
+						}
+
+						if (c.status == 0) {
+							cnt--;
+						}
+
+						for (int j = 0; j < 4; j++) {
+							int y = c.y + dy[j];
+							int x = c.x + dx[j];
+							if (arr[y][x] == 0 ) {
+								arr[y][x] = z;
+								cells[z]= new cell(y, x, z*2, cells[z]);
+								cnt++;
+							}
+
+						}
+					}
+
+				}
+			}
+
+			System.out.println("#" + TC + " " + cnt);
+		}
+
+	}
+
 }
