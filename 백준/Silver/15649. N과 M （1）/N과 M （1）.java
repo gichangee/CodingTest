@@ -9,9 +9,11 @@ public class Main {
     static int first, second;
     static boolean[] visited;
     static int[] num;
+    static StringBuilder stringBuilder;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        stringBuilder = new StringBuilder();
         StringTokenizer StringTokenizer = new StringTokenizer(br.readLine());
         first = Integer.parseInt(StringTokenizer.nextToken());
         second = Integer.parseInt(StringTokenizer.nextToken());
@@ -21,14 +23,16 @@ public class Main {
 
 
         method(0);
+
+        System.out.println(stringBuilder.toString());
     }
 
     private static void method(int depth) {
         if(depth == second) {
             for (int i = 0; i < num.length; i++) {
-                System.out.print(num[i]+" ");
+                stringBuilder.append(num[i]+" ");
             }
-            System.out.println();
+            stringBuilder.append("\n");
         }else{
 
             for (int i = 1; i <= first; i++) {
