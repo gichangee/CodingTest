@@ -1,56 +1,48 @@
-
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.*;
+import java.util.StringTokenizer;
+
 
 public class Main {
 
-	static int N;
-	static int K;
-	static int[] arr;
-	static boolean[] v;
-	static BufferedWriter bw;
-	public static void main(String[] args) throws IOException {
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		bw = new BufferedWriter(new OutputStreamWriter(System.out)); 
-		
-		
-		N = Integer.parseInt(st.nextToken());
-		K = Integer.parseInt(st.nextToken());
-		
-		arr = new int[K];
-		v= new boolean[N];
-		dfs(0);
-		bw.flush();
-		bw.close();
-	}
-	private static void dfs(int index) throws IOException {
-		
-		if(index==K) {
-			for(int i=0;i<index;i++) {
-				bw.write(arr[i]+"");
-				bw.write(" ");
-			}
-			bw.write("\n");
-			return;
-		}
-		
-		
-		for(int i=0;i<N;i++) {
-			if(!v[i]) {
-				v[i]=true;
-				arr[index]=i+1;
-				dfs(index+1);
-				v[i]=false;
-			}
-		}
-			
-		
-	}
+    static int first, second;
+    static boolean[] visited;
+    static int[] num;
 
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer StringTokenizer = new StringTokenizer(br.readLine());
+        first = Integer.parseInt(StringTokenizer.nextToken());
+        second = Integer.parseInt(StringTokenizer.nextToken());
+
+        visited = new boolean[first+1];
+        num = new int[second];
+
+
+        method(0);
+    }
+
+    private static void method(int depth) {
+        if(depth == second) {
+            for (int i = 0; i < num.length; i++) {
+                System.out.print(num[i]+" ");
+            }
+            System.out.println();
+        }else{
+
+            for (int i = 1; i <= first; i++) {
+                if(!visited[i]){
+                    num[depth] = i;
+                    visited[i] = true;
+                    method(depth + 1);
+                    visited[i] = false;
+                }
+            }
+
+
+        }
+
+
+    }
 }
