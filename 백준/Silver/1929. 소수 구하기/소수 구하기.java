@@ -16,10 +16,10 @@ public class Main {
         prime[0] = false;
         prime[1] = false;
       
-        for(int i=2;i<=Math.sqrt(N);i++){
+        for(int i=2;i<=N;i++){
             if(prime[i]){
-                for(int j = i*i;j<=N;j=j+i){
-                    prime[j] = false;
+                for(long j = (long)i*i;j<=N;j=j+i){
+                    prime[(int)j] = false;
                 }
             }
         }
