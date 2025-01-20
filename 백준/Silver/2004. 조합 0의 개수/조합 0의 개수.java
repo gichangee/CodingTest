@@ -8,13 +8,7 @@ public class Main {
         StringTokenizer st = new StringTokenizer(br.readLine());
         long n = Long.parseLong(st.nextToken());
         long m = Long.parseLong(st.nextToken());
-        
-
-        if(m ==0){
-            System.out.println(0);
-            return;
-        }
-        
+         
         long countfive = 0;
         
         for(long i=5;i<=n;i=i*5){
