@@ -12,12 +12,21 @@ public class Main {
         }
         
         while (N != 1){
-           sb.append(Math.abs(N % -2));
-
-           N = (int)(Math.ceil((double)N/-2));
+          if(N < 0){
+            sb.append(Math.abs(N%-2));
+            if((N%-2) != 0){
+                N = N / -2;
+                N++;
+            }else{
+                N = N / -2;
+            }
+          }else{
+            sb.append(Math.abs(N%-2));
+             N = N /-2;
+          }
         }
-        sb.append(N);
         
+        sb.append(1);
         System.out.println(sb.reverse());
     }
 }
