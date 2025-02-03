@@ -50,7 +50,8 @@ public class Main {
         for(int i=0;i<a.length;i++){
             for(int j = 0;j<a.length;j++){
                 for(int k=0;k<a.length;k++){
-                    answer[i][j] = ((answer[i][j]%1000) + (a[i][k] * arr[k][j]) %1000)%1000;
+                    answer[i][j] = ((answer[i][j]) + (a[i][k] * arr[k][j]) %1000)%1000;
+                    
                 }
             }
             
