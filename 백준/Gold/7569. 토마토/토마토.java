@@ -2,96 +2,104 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-
-	static int M,N,H;
-	static int count;
-	
-	public static void main(String[] args) throws IOException {
-		// TODO Auto-generated method stub
-
-		
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st = new StringTokenizer(br.readLine());
-		M = Integer.parseInt(st.nextToken());
-		N = Integer.parseInt(st.nextToken());
-		H = Integer.parseInt(st.nextToken());
-		
-		int[][][] arr = new int[N][M][H];
-		
-		
-		List<int[]> applelist = new ArrayList<>();
-		
-		for(int z=0;z<H;z++) {
-			for(int i=0;i<N;i++) {
-				st = new StringTokenizer(br.readLine());
-				for(int j=0;j<M;j++) {
-					arr[i][j][z]=Integer.parseInt(st.nextToken());
-					if(arr[i][j][z]==1) {
-						applelist.add(new int[] {i,j,z});
-					}
-				}
-			}
-		}
-		
-		count = 0;
-		
-		
-		loop(applelist,arr);
-		
-		boolean a= true;
-		
-		
-		
-		Label: for(int z=0;z<H;z++) {
-			for(int i=0;i<N;i++) {
-				for(int j=0;j<M;j++) {
-					
-					if(arr[i][j][z]==0) {
-						a=false;
-						break Label;
-					}
-				}
-			}
-		}
-		
-		if(!a) {
-			System.out.println(-1);
-		}else {
-			System.out.println(count);
-		}
-	}
-
-	private static void loop(List<int[]> applelist, int[][][] arr) {
-
-		Queue<int[]> q = new ArrayDeque<>();
-		for(int i=0;i<applelist.size();i++) {
-			q.add(new int[] {applelist.get(i)[0],applelist.get(i)[1],applelist.get(i)[2],0});
-		}
-		
-		//상하좌우 위 아래
-		int[] dy= {-1,1,0,0,0,0};
-		int[] dx = {0,0,-1,1,0,0};
-		int[] dz= {0,0,0,0,-1,1};
-		
-		while(!q.isEmpty()) {
-			int[] temp = q.poll();
-			
-			if(count < temp[3]) {
-				count = temp[3];
-			}
-			for(int i=0;i<6;i++) {
-				int y= dy[i]+temp[0];
-				int x= dx[i]+temp[1];
-				int z= dz[i]+temp[2];
-
-				if(y>=0 && y<N && x>=0 && x<M && z>=0 && z<H) {
-					if(arr[y][x][z] == 0 ) {
-						arr[y][x][z]=1;
-						q.add(new int[] {y,x,z,temp[3]+1});
-					}
-				}
-			}
-		}
-	}
-
+    
+    private static int[][][] arr;
+    private static boolean[][][] visited;
+    private static int[] dy = {-1,1,0,0};
+    private static int[] dx = {0,0,-1,1};
+    private static int[] dz = {-1,1};
+    private static int N,M,H;
+    
+    private static Queue<int[]> q;
+    
+    public static void main(String[] args) throws Exception{
+        
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        M = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken());
+        H = Integer.parseInt(st.nextToken());
+        arr = new int[N][M][H];
+        visited = new boolean[N][M][H];
+        
+        q = new LinkedList<>();
+        
+        for(int k = 0;k<H;k++){
+            for(int i=0;i<N;i++){
+                st = new StringTokenizer(br.readLine());
+                for(int j=0;j<M;j++){
+                    int result = Integer.parseInt(st.nextToken());
+                    arr[i][j][k] = result;
+                    
+                    if(result == 1){
+                        q.add(new int[]{i,j,k,0});
+                        visited[i][j][k] = true;
+                    }
+                    
+                    if(result == -1){
+                        visited[i][j][k] = true;
+                    }
+                }
+            } 
+        }
+        
+        int count = method();
+        
+         for(int k = 0;k<H;k++){
+            for(int i=0;i<N;i++){
+                for(int j=0;j<M;j++){
+                    if(arr[i][j][k] == 0){
+                        System.out.println("-1");
+                        return;
+                    }
+                }
+            } 
+        }
+        
+        System.out.println(count);
+        
+    }
+    
+    private static int method(){
+        
+        int count =0;
+        while(!q.isEmpty()){
+            int[] temp = q.poll();
+            
+            int goZ = dz[0] + temp[2];
+            int goZ2 = dz[1] + temp[2];
+            
+            count = Math.max(count,temp[3]);
+               
+            if(goZ >= 0 && goZ <H){
+                if(!visited[temp[0]][temp[1]][goZ]){
+                        arr[temp[0]][temp[1]][goZ] = 1;
+                        visited[temp[0]][temp[1]][goZ] = true;
+                        q.add(new int[]{temp[0],temp[1],goZ,temp[3]+1});
+                }
+            }
+                
+            if(goZ2 >= 0 && goZ2 <H){
+                if(!visited[temp[0]][temp[1]][goZ2]){
+                        arr[temp[0]][temp[1]][goZ2] = 1;
+                        visited[temp[0]][temp[1]][goZ2] = true;
+                        q.add(new int[]{temp[0],temp[1],goZ2,temp[3]+1});
+                }
+            }
+ 
+            for(int i=0;i<4;i++){
+                int goY = dy[i] + temp[0];
+                int goX = dx[i] + temp[1];
+                
+                if(goY >=0 && goX>=0 && goY <N && goX <M){
+                     if(!visited[goY][goX][temp[2]]){
+                        arr[goY][goX][temp[2]] = 1;
+                        visited[goY][goX][temp[2]] = true;
+                        q.add(new int[]{goY,goX,temp[2],temp[3]+1});
+                    }
+                }
+            }
+        }
+        return count;
+    }
 }
