@@ -1,59 +1,30 @@
-import java.util.Scanner;
+import java.util.*;
 
 public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        int N = sc.nextInt();
 
-	public static void main(String[] args) {
+        int[] dp = new int[N + 1];
+        Arrays.fill(dp, Integer.MAX_VALUE);
+        dp[0] = 0; // 0kg을 만들기 위한 봉지 수는 0
 
-		Scanner sc = new Scanner(System.in);
-	
-		
-		int num= sc.nextInt();
-		int fivecount=0;
-		int cnt=0;
-		boolean c= false;
-		int min=Integer.MAX_VALUE;
-		
-		boolean a = false;
-		while(5*fivecount <= num) {
-			cnt=0;
-			int n = num-5*fivecount;
-			
-			
-			cnt +=n/3;
-			
-			if(n%3 > 0) {
-				a=false;
-				fivecount++;
-				continue;
-			}
-			
-			if(n%3 == 0) {
-				a=true;
-			}
-			
-			
-			if(a) {
-				c=true;
-			}
-			
-			cnt+=fivecount;
-			
-			if(min > cnt) {
-				min = cnt;
-			}
-			
-			fivecount++;
-		}
-		
-		
-		if(c) {
-			System.out.println(min);
-		}else {
-			System.out.println(-1);
-		}
+        for (int i = 0; i <= N; i++) {
+            if (dp[i] == Integer.MAX_VALUE) continue;
 
-		
-		
-	}
+            if (i + 3 <= N) {
+                dp[i + 3] = Math.min(dp[i + 3], dp[i] + 1);
+            }
 
+            if (i + 5 <= N) {
+                dp[i + 5] = Math.min(dp[i + 5], dp[i] + 1);
+            }
+        }
+
+        if (dp[N] == Integer.MAX_VALUE) {
+            System.out.println("-1");
+        } else {
+            System.out.println(dp[N]);
+        }
+    }
 }
